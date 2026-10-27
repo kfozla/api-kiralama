@@ -200,11 +200,13 @@ public class Program
         {
             options.AddPolicy("CorsPolicy", policyBuilder =>
                 policyBuilder
-                    .WithOrigins("http://localhost:3000") 
+                    .WithOrigins(
+                        "http://localhost:3000",
+                        "https://admin.goksoft.com"
+                    )
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials());
-
         });
         
         var app = builder.Build();
