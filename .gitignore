@@ -1,0 +1,39 @@
+# .NET build files
+bin/
+obj/
+publish/
+Debug/
+Release/
+
+# EF Core migration bundle
+efbundle
+efbundle.exe
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# macOS
+.DS_Store
+
+# Environment & secrets
+.env
+.env.*
+appsettings.Production.json
+appsettings.Development.local.json
+appsettings.json
+*.pem
+*.pfx
+*.key
+
+# Local database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
