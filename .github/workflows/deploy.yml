@@ -1,0 +1,57 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish
+        run: |
+          dotnet publish ./api-kiralama.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained false \
+            -o ./publish
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: ./publish/
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, linux, x64, production]
+    environment: production
+    concurrency:
+      group: api-kiralama-production
+      cancel-in-progress: false
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-publish
+          path: ./publish
+
+      - name: Deploy to EC2
+        run: |
+          mkdir -p /home/githubrunner/deploy-payload
+          find /home/githubrunner/deploy-payload -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+          cp -a ./publish/. /home/githubrunner/deploy-payload/
+          sudo -n /usr/local/sbin/deploy-api-kiralama
