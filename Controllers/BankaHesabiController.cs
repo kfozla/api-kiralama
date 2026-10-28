@@ -48,7 +48,6 @@ public class BankaHesabiController : ControllerBase
 
     // GET /api/BankaHesabi/admin
     [HttpGet("admin")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetForAdmin()
     {
         var result = await _service.GetAllAsync(true);
@@ -58,7 +57,6 @@ public class BankaHesabiController : ControllerBase
 
     // GET /api/BankaHesabi/5
     [HttpGet("{id:int}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetById(int id)
     {
         var result = await _service.GetByIdAsync(id);
@@ -70,7 +68,6 @@ public class BankaHesabiController : ControllerBase
 
     // POST /api/BankaHesabi
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(
         [FromBody] BankaHesabiRequest request)
     {
@@ -91,7 +88,6 @@ public class BankaHesabiController : ControllerBase
 
     // PUT /api/BankaHesabi/5
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(
         int id,
         [FromBody] BankaHesabiRequest request)
@@ -115,7 +111,6 @@ public class BankaHesabiController : ControllerBase
 
     // DELETE /api/BankaHesabi/5
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _service.DeleteAsync(id);
@@ -125,7 +120,6 @@ public class BankaHesabiController : ControllerBase
 
     // POST /api/BankaHesabi/5/logo
     [HttpPost("{id:int}/logo")]
-    [Authorize(Roles = "Admin")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(2 * 1024 * 1024 + 65536)]
     public async Task<IActionResult> UploadLogo(
@@ -151,7 +145,6 @@ public class BankaHesabiController : ControllerBase
 
     // DELETE /api/BankaHesabi/5/logo
     [HttpDelete("{id:int}/logo")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteLogo(int id)
     {
         var result = await _service.DeleteLogoAsync(id);

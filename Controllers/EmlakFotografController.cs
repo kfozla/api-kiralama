@@ -35,7 +35,6 @@ public class EmlakFotografController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(210_000_000)]
     public async Task<IActionResult> Upload(
@@ -62,7 +61,6 @@ public class EmlakFotografController : ControllerBase
     }
 
     [HttpDelete("{fotografId:int}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(
         int emlakId,
         int fotografId)
@@ -83,7 +81,6 @@ public class EmlakFotografController : ControllerBase
     }
 
     [HttpPatch("{fotografId:int}/kapak")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SetCover(
         int emlakId,
         int fotografId)
@@ -107,7 +104,6 @@ public class EmlakFotografController : ControllerBase
     }
 
     [HttpPut("siralama")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Reorder(
         int emlakId,
         [FromBody] EmlakFotografSiralamaRequest request)
