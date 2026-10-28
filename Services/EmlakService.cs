@@ -8,11 +8,13 @@ public class EmlakService
 {
     private readonly EmlakRepository _repository;
     private readonly HtmlContentService _htmlContentService;
+    private readonly EmlakFotografS3Service _fotografS3Service;
 
-    public EmlakService(EmlakRepository repository,HtmlContentService htmlContentService)
+    public EmlakService(EmlakRepository repository,HtmlContentService htmlContentService, EmlakFotografS3Service fotografS3Service)
     {
         _repository = repository;
         _htmlContentService = htmlContentService;
+        _fotografS3Service = fotografS3Service;
     }
 
     private static EmlakResponse MapResponse(Emlak e)
@@ -236,7 +238,16 @@ public class EmlakService
     public async Task<PagedResponse<EmlakListResponse>> GetPagedAsync(
         EmlakPagedRequest request)
     {
-        return await _repository.GetPagedAsync(request);
+        var result = await _repository.GetPagedAsync(request);
+
+        foreach (var emlak in result.Items)
+        {
+            emlak.KapakFotografUrl =
+                _fotografS3Service.GetPhotoUrl(
+                    emlak.KapakFotografUrl);
+        }
+
+        return result;
     }
     
     

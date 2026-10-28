@@ -11,9 +11,10 @@ namespace api_kiralama.Controllers;
 [Authorize]
 public class EmlakOzellikController : ControllerBase
 {
-    private readonly EmlakOzellikService _service;
+    //private readonly EmlakOzellikService _service;
+    private readonly EmlakOzellikS3Service _service;
 
-    public EmlakOzellikController(EmlakOzellikService service)
+    public EmlakOzellikController(EmlakOzellikS3Service service)
     {
         _service = service;
     }
@@ -114,14 +115,15 @@ public class EmlakOzellikController : ControllerBase
         }
     }
 
-    private static object ToResponse(EmlakOzellik ozellik)
+    private object ToResponse(EmlakOzellik ozellik)
     {
         return new
         {
             ozellik.Id,
             ozellik.OzellikAdi,
             ozellik.Kategori,
-            ozellik.LogoUrl
+            //ozellik.LogoUrl
+            LogoUrl = _service.GetLogoUrl(ozellik.LogoUrl)
         };
     }
     

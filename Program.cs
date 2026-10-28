@@ -9,6 +9,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
+using Amazon;
+using Amazon.S3;
+
 namespace api_kiralama;
 
 public class Program
@@ -80,10 +83,15 @@ public class Program
         });
         
 
+        builder.Services.AddSingleton<IAmazonS3>(_ =>
+            new AmazonS3Client(RegionEndpoint.EUNorth1));
         
         builder.Services.AddAuthorization();
         
-
+        builder.Services.AddScoped<EmlakFotografS3Service>();
+        builder.Services.AddScoped<EmlakOzellikS3Service>();
+        builder.Services.AddScoped<BankaHesabiS3Service>();
+        
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<JwtService>();
         builder.Services.AddScoped<EmlakSahibiService>();

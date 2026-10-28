@@ -11,10 +11,11 @@ namespace api_kiralama.Controllers;
 [Authorize]
 public class EmlakFotografController : ControllerBase
 {
-    private readonly EmlakFotografService _service;
+    //private readonly EmlakFotografService _service;
+    private readonly EmlakFotografS3Service _service;
 
     public EmlakFotografController(
-        EmlakFotografService service)
+        EmlakFotografS3Service service)
     {
         _service = service;
     }
