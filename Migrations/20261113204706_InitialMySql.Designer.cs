@@ -12,8 +12,8 @@ using api_kiralama.Data;
 namespace api_kiralama.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261026075340_AddEmlakOzellikLogo")]
-    partial class AddEmlakOzellikLogo
+    [Migration("20261113204706_InitialMySql")]
+    partial class InitialMySql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,9 +21,9 @@ namespace api_kiralama.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("EmlakEmlakOzellik", b =>
                 {
@@ -61,21 +61,21 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aciklama")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<bool>("Aktif")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("tinyint(1)")
                         .HasDefaultValue(true);
 
                     b.Property<string>("Baslik")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("varchar(150)");
 
                     b.Property<int>("GosterimTipi")
                         .HasColumnType("int");
@@ -94,7 +94,7 @@ namespace api_kiralama.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("varchar(150)");
 
                     b.HasKey("Id");
 
@@ -110,7 +110,7 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AnasayfaBolumId")
                         .HasColumnType("int");
@@ -137,47 +137,47 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("AktifMi")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("BankaAdi")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("varchar(150)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("HesapSahibi")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("Iban")
                         .IsRequired()
                         .HasMaxLength(34)
-                        .HasColumnType("nvarchar(34)");
+                        .HasColumnType("varchar(34)");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("ParaBirimi")
                         .IsRequired()
                         .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("varchar(3)");
 
                     b.Property<int>("Sira")
                         .HasColumnType("int");
 
                     b.Property<string>("SubeAdi")
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("varchar(150)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -192,11 +192,11 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Ad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("ParentBolgeId")
                         .HasColumnType("int");
@@ -214,18 +214,18 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Açıklama")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("BanyoSayısı")
                         .HasColumnType("int");
 
                     b.Property<string>("BelgeNo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<int>("BolgeId")
                         .HasColumnType("int");
@@ -234,19 +234,16 @@ namespace api_kiralama.Migrations
                         .HasColumnType("time(0)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("EmlakAdı")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("EmlakSahibiId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("EmlakSahibiId1")
                         .HasColumnType("int");
 
                     b.Property<int>("EmlakTipi")
@@ -254,7 +251,7 @@ namespace api_kiralama.Migrations
 
                     b.Property<string>("GenelBilgiler")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<TimeOnly>("GirisSaati")
                         .HasColumnType("time(0)");
@@ -264,16 +261,16 @@ namespace api_kiralama.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Kapasite")
                         .HasColumnType("int");
 
                     b.Property<double?>("Latitude")
-                        .HasColumnType("float");
+                        .HasColumnType("double");
 
                     b.Property<double?>("Longitude")
-                        .HasColumnType("float");
+                        .HasColumnType("double");
 
                     b.Property<int>("MinimumKonaklamaSuresi")
                         .ValueGeneratedOnAdd()
@@ -295,14 +292,14 @@ namespace api_kiralama.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("YatakOdasıSayısı")
                         .HasColumnType("int");
 
                     b.Property<bool>("Yayinda")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
                     b.HasKey("Id");
@@ -310,8 +307,6 @@ namespace api_kiralama.Migrations
                     b.HasIndex("BolgeId");
 
                     b.HasIndex("EmlakSahibiId");
-
-                    b.HasIndex("EmlakSahibiId1");
 
                     b.ToTable("Emlaklar");
                 });
@@ -322,10 +317,10 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aciklama")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateOnly>("BaslangicTarihi")
                         .HasColumnType("date");
@@ -344,8 +339,7 @@ namespace api_kiralama.Migrations
                     b.HasIndex("EmlakId");
 
                     b.HasIndex("RezervasyonId")
-                        .IsUnique()
-                        .HasFilter("[RezervasyonId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("EmlakBlokeTarihler");
                 });
@@ -356,7 +350,7 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateOnly>("BaslangicTarihi")
                         .HasColumnType("date");
@@ -384,30 +378,36 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("DosyaYolu")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<int>("EmlakId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("KapakEmlakId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CASE WHEN `KapakMi` = 1 THEN `EmlakId` ELSE NULL END", false);
+
                     b.Property<bool>("KapakMi")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Sira")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmlakId")
-                        .IsUnique()
-                        .HasFilter("[KapakMi] = 1");
+                    b.HasIndex("EmlakId");
+
+                    b.HasIndex("KapakEmlakId")
+                        .IsUnique();
 
                     b.HasIndex("EmlakId", "Sira");
 
@@ -420,18 +420,19 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Kategori")
                         .HasColumnType("int");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("OzellikAdi")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.HasKey("Id");
 
@@ -447,28 +448,28 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Aciklama")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Ad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("KayitTarihi")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Soyad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Telefon")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -481,47 +482,47 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Adres")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Email")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("IsletmeAdi")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Telefon")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TursabBelgeNo")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("TursabBelgeUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<bool>("TursabUyeligiVar")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("WebSitesi")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("YetkiliKisi")
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("varchar(150)");
 
                     b.HasKey("Id");
 
@@ -534,20 +535,20 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<bool>("IsRevoked")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -563,19 +564,19 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateOnly>("CikisTarihi")
                         .HasColumnType("date");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Durum")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("EmlakId")
                         .HasColumnType("int");
@@ -592,15 +593,15 @@ namespace api_kiralama.Migrations
 
                     b.Property<string>("MusteriAd")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("MusteriSoyad")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Telefon")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<decimal>("TemizlikUcreti")
                         .HasPrecision(18, 2)
@@ -611,7 +612,7 @@ namespace api_kiralama.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -630,24 +631,24 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Baslik")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varchar(200)");
 
                     b.Property<string>("IcerikHtml")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("varchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
 
@@ -663,14 +664,14 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("AktifMi")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("CevapHtml")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Sira")
                         .HasColumnType("int");
@@ -678,7 +679,7 @@ namespace api_kiralama.Migrations
                     b.Property<string>("Soru")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("varchar(500)");
 
                     b.HasKey("Id");
 
@@ -693,37 +694,37 @@ namespace api_kiralama.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -794,13 +795,9 @@ namespace api_kiralama.Migrations
                         .IsRequired();
 
                     b.HasOne("api_kiralama.Models.EmlakSahibi", null)
-                        .WithMany()
+                        .WithMany("Emlaklar")
                         .HasForeignKey("EmlakSahibiId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("api_kiralama.Models.EmlakSahibi", null)
-                        .WithMany("Emlaklar")
-                        .HasForeignKey("EmlakSahibiId1");
 
                     b.OwnsMany("api_kiralama.Models.Havuz", "HavuzBilgileri", b1 =>
                         {
@@ -811,27 +808,27 @@ namespace api_kiralama.Migrations
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("int");
 
+                            MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b1.Property<int>("Id"));
+
                             b1.Property<decimal>("Boy")
-                                .HasColumnType("decimal(18,2)");
+                                .HasColumnType("decimal(65,30)");
 
                             b1.Property<decimal>("Derinlik")
-                                .HasColumnType("decimal(18,2)");
+                                .HasColumnType("decimal(65,30)");
 
                             b1.Property<decimal>("En")
-                                .HasColumnType("decimal(18,2)");
+                                .HasColumnType("decimal(65,30)");
 
                             b1.Property<int>("HavuzKorunakTipi")
                                 .HasColumnType("int");
 
                             b1.Property<string>("HavuzTipi")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("longtext");
 
                             b1.HasKey("EmlakId", "Id");
 
-                            b1.ToTable("Emlaklar");
-
-                            b1.ToJson("HavuzBilgileri");
+                            b1.ToTable("EmlakHavuzBilgileri", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("EmlakId");

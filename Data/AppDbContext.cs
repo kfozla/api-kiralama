@@ -17,40 +17,45 @@ public class AppDbContext:DbContext
     public DbSet<Rezervasyon> Rezervasyonlar { get; set; }
     public DbSet<IsletmeAyarlari> IsletmeAyarlari { get; set; }
     public DbSet<EmlakFotograf> EmlakFotograflari { get; set; }
-    
+
     public DbSet<SayfaIcerigi> SayfaIcerikleri { get; set; }
 
     public DbSet<SikcaSorulanSoru> SikcaSorulanSorular { get; set; }
 
     public DbSet<BankaHesabi> BankaHesaplari { get; set; }
-    
+
     public DbSet<AnasayfaBolum> AnasayfaBolumler { get; set; }
     public DbSet<AnasayfaBolumEmlak> AnasayfaBolumEmlaklar { get; set; }
 
-    
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
+
+        modelBuilder.Entity<EmlakOzellik>()
+            .Property(o => o.OzellikAdi)
+            .HasMaxLength(150);
+
         modelBuilder.Entity<EmlakOzellik>()
             .HasIndex(o => new { o.OzellikAdi, o.Kategori })
             .IsUnique();
-        
+
         modelBuilder.Entity<Emlak>()
             .HasMany(e => e.EmlakOzellikleri)
             .WithMany(o => o.Emlaklar)
             .UsingEntity(j => j.ToTable("EmlakOzellikIliskileri"));
-        
+
         // Emlak - Öne çıkan özellikler
         modelBuilder.Entity<Emlak>()
             .HasMany(e => e.OneCıkanOzellikler)
             .WithMany()
             .UsingEntity(j => j.ToTable("EmlakOneCikanOzellikIliskileri"));
-        
+
         modelBuilder.Entity<Emlak>()
             .HasOne<EmlakSahibi>()
-            .WithMany()
+            .WithMany(s => s.Emlaklar)
             .HasForeignKey(e => e.EmlakSahibiId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
@@ -67,16 +72,16 @@ public class AppDbContext:DbContext
             .WithMany()
             .HasForeignKey(e => e.BolgeId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         modelBuilder.Entity<Bolge>()
             .HasIndex(b => b.ParentBolgeId);
-        
+
         modelBuilder.Entity<Emlak>()
             .OwnsMany(e => e.HavuzBilgileri, builder =>
             {
-                builder.ToJson();
+                builder.ToTable("EmlakHavuzBilgileri");
             });
-        
+
         modelBuilder.Entity<EmlakFiyat>()
             .Property(f => f.GecelikFiyat)
             .HasPrecision(18, 2);
@@ -84,7 +89,7 @@ public class AppDbContext:DbContext
         modelBuilder.Entity<Rezervasyon>()
             .Property(r => r.ToplamFiyat)
             .HasPrecision(18, 2);
-        
+
         modelBuilder.Entity<Rezervasyon>(entity =>
         {
             entity.HasIndex(r => new
@@ -119,8 +124,8 @@ public class AppDbContext:DbContext
             .WithMany()
             .HasForeignKey(b => b.EmlakId)
             .OnDelete(DeleteBehavior.Restrict);
-        
-        
+
+
         modelBuilder.Entity<EmlakBlokeTarih>()
             .HasOne<Rezervasyon>()
             .WithMany()
@@ -129,9 +134,8 @@ public class AppDbContext:DbContext
 
         modelBuilder.Entity<EmlakBlokeTarih>()
             .HasIndex(x => x.RezervasyonId)
-            .IsUnique()
-            .HasFilter("[RezervasyonId] IS NOT NULL");
-        
+            .IsUnique();
+
         modelBuilder.Entity<IsletmeAyarlari>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -155,7 +159,7 @@ public class AppDbContext:DbContext
             entity.Property(x => x.TursabBelgeNo)
                 .HasMaxLength(100);
         });
-        
+
         modelBuilder.Entity<EmlakFotograf>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -173,13 +177,18 @@ public class AppDbContext:DbContext
                 .HasForeignKey(x => x.EmlakId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Her emlağın en fazla bir kapak fotoğrafı olabilir.
-            entity.HasIndex(x => x.EmlakId)
-                .IsUnique()
-                .HasFilter("[KapakMi] = 1");
+            entity.Property<int?>("KapakEmlakId")
+                .HasComputedColumnSql(
+                    "CASE WHEN `KapakMi` = 1 THEN `EmlakId` ELSE NULL END",
+                    stored: false
+                );
+
+            entity.HasIndex("KapakEmlakId")
+                .IsUnique();
+
         });
-        
-        
+
+
         modelBuilder.Entity<SayfaIcerigi>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -196,7 +205,7 @@ public class AppDbContext:DbContext
                 .IsRequired();
 
             entity.Property(x => x.IcerikHtml)
-                .HasColumnType("nvarchar(max)")
+                .HasColumnType("longtext")
                 .IsRequired();
         });
 
@@ -209,7 +218,7 @@ public class AppDbContext:DbContext
                 .IsRequired();
 
             entity.Property(x => x.CevapHtml)
-                .HasColumnType("nvarchar(max)")
+                .HasColumnType("longtext")
                 .IsRequired();
 
             entity.HasIndex(x => x.Sira);
@@ -243,16 +252,16 @@ public class AppDbContext:DbContext
 
             entity.HasIndex(x => x.Sira);
         });
-        
+
         modelBuilder.Entity<Emlak>(entity =>
         {
             entity.Property(e => e.Açıklama)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("longtext");
 
             entity.Property(e => e.GenelBilgiler)
-                .HasColumnType("nvarchar(max)");
+                .HasColumnType("longtext");
         });
-        
+
         modelBuilder.Entity<Emlak>(entity =>
         {
             entity.Property(e => e.GirisSaati)
@@ -272,7 +281,7 @@ public class AppDbContext:DbContext
             entity.Property(e => e.MinimumKonaklamaTemizlik)
                 .HasDefaultValue(0);
         });
-        
+
         modelBuilder.Entity<Rezervasyon>(entity =>
         {
             entity.Property(r => r.TemizlikUcreti)
@@ -281,7 +290,7 @@ public class AppDbContext:DbContext
             entity.Property(r => r.HasarDepozitosu)
                 .HasPrecision(18, 2);
         });
-        
+
         modelBuilder.Entity<AnasayfaBolum>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -333,7 +342,7 @@ public class AppDbContext:DbContext
                 .HasForeignKey(x => x.EmlakId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
-        
+
         modelBuilder.Entity<Emlak>(entity =>
         {
             entity.Property(e => e.Yayinda)
@@ -345,7 +354,7 @@ public class AppDbContext:DbContext
             entity.Property(e => e.BelgeNo)
                 .HasMaxLength(100);
         });
-        
+
         modelBuilder.Entity<EmlakOzellik>()
             .Property(x => x.LogoUrl)
             .HasMaxLength(500);
