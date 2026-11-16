@@ -26,6 +26,12 @@ public class AppDbContext:DbContext
 
     public DbSet<AnasayfaBolum> AnasayfaBolumler { get; set; }
     public DbSet<AnasayfaBolumEmlak> AnasayfaBolumEmlaklar { get; set; }
+    
+    public DbSet<EmlakPaylasim> EmlakPaylasimlar =>
+        Set<EmlakPaylasim>();
+
+    public DbSet<EmlakPaylasimItem> EmlakPaylasimItems =>
+        Set<EmlakPaylasimItem>();
 
 
 
@@ -358,6 +364,42 @@ public class AppDbContext:DbContext
         modelBuilder.Entity<EmlakOzellik>()
             .Property(x => x.LogoUrl)
             .HasMaxLength(500);
+        
+        modelBuilder.Entity<EmlakPaylasim>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasIndex(x => x.TokenHash).IsUnique();
+
+            entity.Property(x => x.TokenHash)
+                .HasMaxLength(64)
+                .IsRequired();
+
+            entity.Property(x => x.Baslik)
+                .HasMaxLength(150);
+
+            entity.HasMany(x => x.Items)
+                .WithOne(x => x.EmlakPaylasim)
+                .HasForeignKey(x => x.EmlakPaylasimId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<EmlakPaylasimItem>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasIndex(x => new
+            {
+                x.EmlakPaylasimId,
+                x.EmlakId
+            }).IsUnique();
+
+            entity.HasOne(x => x.Emlak)
+                .WithMany()
+                .HasForeignKey(x => x.EmlakId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
 
     }
 }

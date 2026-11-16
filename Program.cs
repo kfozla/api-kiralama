@@ -135,6 +135,11 @@ public class Program
 
 
         builder.Services.AddScoped<AnasayfaBolumService>();
+        
+        
+        builder.Services.AddScoped<EmlakPaylasimRepository>();
+        builder.Services.AddScoped<EmlakPaylasimService>();
+
 
 
 

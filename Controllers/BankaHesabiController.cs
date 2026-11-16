@@ -124,7 +124,7 @@ public class BankaHesabiController : ControllerBase
     [RequestSizeLimit(2 * 1024 * 1024 + 65536)]
     public async Task<IActionResult> UploadLogo(
         int id,
-        [FromForm] IFormFile file)
+         IFormFile file)
     {
         try
         {

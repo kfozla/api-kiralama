@@ -257,5 +257,13 @@ public class EmlakService
     {
         return _repository.SearchAsync(query, limit);
     }
+    
+    
+    public async Task<List<Emlak>> AdvancedSearchAsync(
+        AdvancedSearchRequest request)
+    {
+        return await _repository.AdvancedSearchAsync(request);
+    }
+
 
 }

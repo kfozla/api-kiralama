@@ -439,6 +439,73 @@ namespace api_kiralama.Migrations
                     b.ToTable("EmlakOzellikleri");
                 });
 
+            modelBuilder.Entity("api_kiralama.Models.EmlakPaylasim", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Baslik")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<DateOnly?>("CikisTarihi")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateOnly?>("GirisTarihi")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("EmlakPaylasimlar");
+                });
+
+            modelBuilder.Entity("api_kiralama.Models.EmlakPaylasimItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EmlakId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EmlakPaylasimId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Sira")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmlakId");
+
+                    b.HasIndex("EmlakPaylasimId", "EmlakId")
+                        .IsUnique();
+
+                    b.ToTable("EmlakPaylasimItems");
+                });
+
             modelBuilder.Entity("api_kiralama.Models.EmlakSahibi", b =>
                 {
                     b.Property<int>("Id")
@@ -866,6 +933,25 @@ namespace api_kiralama.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("api_kiralama.Models.EmlakPaylasimItem", b =>
+                {
+                    b.HasOne("api_kiralama.Models.Emlak", "Emlak")
+                        .WithMany()
+                        .HasForeignKey("EmlakId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("api_kiralama.Models.EmlakPaylasim", "EmlakPaylasim")
+                        .WithMany("Items")
+                        .HasForeignKey("EmlakPaylasimId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Emlak");
+
+                    b.Navigation("EmlakPaylasim");
+                });
+
             modelBuilder.Entity("api_kiralama.Models.Rezervasyon", b =>
                 {
                     b.HasOne("api_kiralama.Models.Emlak", null)
@@ -878,6 +964,11 @@ namespace api_kiralama.Migrations
             modelBuilder.Entity("api_kiralama.Models.AnasayfaBolum", b =>
                 {
                     b.Navigation("Emlaklar");
+                });
+
+            modelBuilder.Entity("api_kiralama.Models.EmlakPaylasim", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("api_kiralama.Models.EmlakSahibi", b =>

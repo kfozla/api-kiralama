@@ -36,4 +36,4 @@ appsettings.json
 
 # Logs
 logs/
-*.log
+*.logmysql-initial.sql

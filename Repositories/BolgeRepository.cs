@@ -33,6 +33,32 @@ public class BolgeRepository
             .AsNoTracking()
             .ToListAsync();
     }
+    
+    public async Task<List<int>> GetTumAltBolgeIdsAsync(int bolgeId)
+    {
+        var result = new HashSet<int> { bolgeId };
+        var queue = new Queue<int>();
+
+        queue.Enqueue(bolgeId);
+
+        while (queue.Count > 0)
+        {
+            var currentId = queue.Dequeue();
+
+            var altBolgeler = await GetAltBolgelerAsync(currentId);
+
+            foreach (var bolge in altBolgeler)
+            {
+                if (result.Add(bolge.Id))
+                {
+                    queue.Enqueue(bolge.Id);
+                }
+            }
+        }
+
+        return result.ToList();
+    }
+
 
     public async Task<bool> HasAltBolgeAsync(int id)
     {

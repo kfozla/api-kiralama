@@ -161,4 +161,44 @@ public class EmlakController : ControllerBase
             yayinda = request.Yayinda
         });
     }
+    
+    
+    [HttpGet("advanced-search")]
+    public async Task<IActionResult> AdvancedSearch(
+        [FromQuery] AdvancedSearchRequest request)
+    {
+        if (request.Giris.HasValue != request.Cikis.HasValue)
+        {
+            return BadRequest(new
+            {
+                message = "Giriş ve çıkış tarihleri birlikte girilmelidir."
+            });
+        }
+
+        if (request.Giris.HasValue &&
+            request.Cikis!.Value <= request.Giris.Value)
+        {
+            return BadRequest(new
+            {
+                message = "Çıkış tarihi giriş tarihinden sonra olmalıdır."
+            });
+        }
+
+        if (request.MinKapasite is <= 0 ||
+            request.MinYatakOdasi is < 0 ||
+            request.MinBanyo is < 0 ||
+            request.BolgeId is <= 0 ||
+            request.OzellikIds?.Any(id => id <= 0) == true)
+        {
+            return BadRequest(new
+            {
+                message = "Filtre değerleri geçersiz."
+            });
+        }
+
+        var emlaklar = await _service.AdvancedSearchAsync(request);
+
+        return Ok(emlaklar);
+    }
+
 }
