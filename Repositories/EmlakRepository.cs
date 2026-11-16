@@ -313,10 +313,11 @@ public class EmlakRepository
     }
     
     
-public async Task<List<Emlak>> AdvancedSearchAsync(
+
+public async Task<PagedResponse<EmlakListResponse>> AdvancedSearchAsync(
     AdvancedSearchRequest request)
 {
-    var query = ActiveEmlaklar();
+    var query = ActiveEmlaklar().AsNoTracking();
 
     // 1. Emlak tipi
     if (request.EmlakTipi.HasValue)
@@ -325,8 +326,7 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
             e.EmlakTipi == request.EmlakTipi.Value);
     }
 
-    // 2. Bölge
-    
+    // 2. Bölge ve alt bölgeler
     if (request.BolgeId.HasValue)
     {
         var bolgeIds = await _bolgeRepository
@@ -335,7 +335,6 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
         query = query.Where(e =>
             bolgeIds.Contains(e.BolgeId));
     }
-
 
     // 3. Kapasite
     if (request.MinKapasite.HasValue)
@@ -358,7 +357,7 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
             e.BanyoSayısı >= request.MinBanyo.Value);
     }
 
-    // 6. Özellikler: AND mantığı
+    // 6. Özellikler - AND
     if (request.OzellikIds != null)
     {
         foreach (var id in request.OzellikIds.Distinct())
@@ -378,13 +377,18 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
         var giris = request.Giris.Value;
         var cikis = request.Cikis.Value;
 
-        var geceSayisi = cikis.DayNumber - giris.DayNumber;
+        if (cikis <= giris)
+        {
+            throw new ArgumentException(
+                "Çıkış tarihi giriş tarihinden sonra olmalı.");
+        }
 
-        // Minimum konaklama süresi
+        var geceSayisi =
+            cikis.DayNumber - giris.DayNumber;
+
         query = query.Where(e =>
             e.MinimumKonaklamaSuresi <= geceSayisi);
 
-        // Rezervasyon çakışması bulunmamalı
         query = query.Where(e =>
             !_context.Rezervasyonlar.Any(r =>
                 r.EmlakId == e.Id &&
@@ -392,7 +396,6 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
                 r.GirisTarihi < cikis &&
                 r.CikisTarihi > giris));
 
-        // Bloke tarih çakışması bulunmamalı
         query = query.Where(e =>
             !_context.EmlakBlokeTarihler.Any(b =>
                 b.EmlakId == e.Id &&
@@ -400,29 +403,102 @@ public async Task<List<Emlak>> AdvancedSearchAsync(
                 b.BitisTarihi > giris));
     }
 
-    // 8. MySQL'den sonuçları al
-    var emlaklar = await query
-        .Include(e => e.EmlakOzellikleri)
-        .Include(e => e.OneCıkanOzellikler)
-        .AsSplitQuery()
-        .AsNoTracking()
-        .ToListAsync();
+    // 8. Pagination
+    var page = Math.Max(1, request.Page);
+    var pageSize = Math.Clamp(request.PageSize, 1, 100);
 
-    // 9. Havuz korunak tipi
+    int totalCount;
+    List<Emlak> emlaklar;
+
     if (request.HavuzKorunakTipi.HasValue)
     {
+        // HavuzBilgileri mevcut yapıda C# tarafında
+        // filtrelendiği için aynı davranışı koruyoruz.
         var korunakTipi = request.HavuzKorunakTipi.Value;
 
-        emlaklar = emlaklar
+        var filtered = (await query
+                .OrderBy(e => e.Id)
+                .ToListAsync())
             .Where(e =>
                 e.HavuzBilgileri != null &&
                 e.HavuzBilgileri.Any(h =>
                     h.HavuzKorunakTipi == korunakTipi))
             .ToList();
+
+        totalCount = filtered.Count;
+
+        emlaklar = filtered
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+    else
+    {
+        // Normal durumda gerçek SQL pagination
+        totalCount = await query.CountAsync();
+
+        emlaklar = await query
+            .OrderBy(e => e.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 
-    return emlaklar;
+    // 9. Yalnızca sayfadaki emlakların fotoğrafları
+    var emlakIds = emlaklar.Select(e => e.Id).ToList();
+
+    var fotograflar = await _context.EmlakFotograflari
+        .AsNoTracking()
+        .Where(f =>
+            emlakIds.Contains(f.EmlakId) &&
+            f.KapakMi)
+        .Select(f => new
+        {
+            f.EmlakId,
+            f.DosyaYolu
+        })
+        .ToListAsync();
+
+    var kapakMap = fotograflar
+        .GroupBy(f => f.EmlakId)
+        .ToDictionary(
+            g => g.Key,
+            g => g.First().DosyaYolu
+        );
+
+    // 10. DTO dönüşümü
+    var items = emlaklar.Select(e =>
+    {
+        kapakMap.TryGetValue(
+            e.Id,
+            out var kapakFotograf
+        );
+
+        return new EmlakListResponse
+        {
+            Id = e.Id,
+            EmlakAdı = e.EmlakAdı,
+            BolgeId = e.BolgeId,
+            EmlakTipi = (int)e.EmlakTipi,
+            Kapasite = e.Kapasite,
+            YatakOdasıSayısı = e.YatakOdasıSayısı,
+            BanyoSayısı = e.BanyoSayısı,
+            KapakFotografUrl = kapakFotograf
+
+            // Normal GetPagedAsync DTO mapping'inde
+            // başka alanlar varsa onları da buraya ekle.
+        };
+    }).ToList();
+
+    return new PagedResponse<EmlakListResponse>
+    {
+        Items = items,
+        TotalCount = totalCount,
+        Page = page,
+        PageSize = pageSize
+    };
 }
+
 
 
 

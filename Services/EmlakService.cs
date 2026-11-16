@@ -259,11 +259,22 @@ public class EmlakService
     }
     
     
-    public async Task<List<Emlak>> AdvancedSearchAsync(
+   
+    public async Task<PagedResponse<EmlakListResponse>> AdvancedSearchAsync(
         AdvancedSearchRequest request)
     {
-        return await _repository.AdvancedSearchAsync(request);
+        var result = await _repository.AdvancedSearchAsync(request);
+
+        foreach (var emlak in result.Items)
+        {
+            emlak.KapakFotografUrl =
+                _fotografS3Service.GetPhotoUrl(
+                    emlak.KapakFotografUrl);
+        }
+
+        return result;
     }
+
 
 
 }

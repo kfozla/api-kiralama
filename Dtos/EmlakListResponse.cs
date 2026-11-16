@@ -1,3 +1,5 @@
+using api_kiralama.Models;
+
 namespace api_kiralama.Dtos;
 
 public class EmlakListResponse
