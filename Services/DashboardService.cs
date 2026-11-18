@@ -64,7 +64,7 @@ public class DashboardService
                 r.CreatedAt >= monthStart &&
                 r.CreatedAt < nextMonth &&
                 r.Durum != RezervasyonDurumu.IptalEdildi)
-            .SumAsync(r => (decimal?)r.ToplamFiyat) ?? 0m;
+            .SumAsync(r => (decimal?)r.ToplamFiyat + r.TemizlikUcreti) ?? 0m;
 
         return new DashboardSummaryResponse
         {
