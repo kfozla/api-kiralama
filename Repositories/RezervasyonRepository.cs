@@ -203,6 +203,8 @@ public async Task<PagedResponse<RezervasyonListResponse>> GetPagedAsync(
             HasarDepozitosu = x.Rezervasyon.HasarDepozitosu,
 
             Durum = (int)x.Rezervasyon.Durum,
+            OnOdemeTutari = x.Rezervasyon.OnOdemeTutari,
+            KomisyonTutari = x.Rezervasyon.KomisyonTutari,
 
             CreatedAt = x.Rezervasyon.CreatedAt,
             UpdatedAt = x.Rezervasyon.UpdatedAt

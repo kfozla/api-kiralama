@@ -28,4 +28,5 @@ public class IsletmeAyarlariRequest
 
     [StringLength(100)]
     public string? TursabBelgeNo { get; set; }
+    public decimal OnOdemeOrani { get; set; }
 }

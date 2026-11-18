@@ -6,7 +6,7 @@ public class Emlak
     public int? EmlakSahibiId { get; set; }
     public EmlakTipi EmlakTipi { get; set; }
     public int BolgeId { get; set; }
-
+    public decimal KomisyonOrani { get; set; } = 20m;
     public string EmlakAdı { get; set; } = string.Empty;
     public string Açıklama { get; set; } = string.Empty;
 

@@ -27,6 +27,8 @@ public class RezervasyonListResponse
 
     // Girişte nakit alınacak, toplam fiyata dahil değil
     public decimal HasarDepozitosu { get; set; }
+    public decimal? OnOdemeTutari { get; set; }
+    public decimal? KomisyonTutari { get; set; }
 
     public int Durum { get; set; }
 

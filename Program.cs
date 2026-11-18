@@ -139,6 +139,9 @@ public class Program
         
         builder.Services.AddScoped<EmlakPaylasimRepository>();
         builder.Services.AddScoped<EmlakPaylasimService>();
+        
+        builder.Services.AddScoped<MuhasebeRepository>();
+        builder.Services.AddScoped<MuhasebeService>();
 
 
 

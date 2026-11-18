@@ -61,4 +61,5 @@ public class EmlakRequest
 
     [MaxLength(100)]
     public string? BelgeNo { get; set; }
+    public decimal KomisyonOrani { get; set; }
 }

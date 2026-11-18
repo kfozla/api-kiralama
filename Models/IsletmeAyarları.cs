@@ -11,6 +11,7 @@ public class IsletmeAyarlari
     public string? Email { get; set; }
     public string? Adres { get; set; }
     public string? WebSitesi { get; set; }
+    public decimal OnOdemeOrani { get; set; } = 20m;
 
     // Özel depolama alanındaki dosya adı
     public string? LogoUrl { get; set; }

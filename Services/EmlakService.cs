@@ -43,6 +43,7 @@ public class EmlakService
             TemizlikUcreti = e.TemizlikUcreti,
             MinimumKonaklamaSuresi = e.MinimumKonaklamaSuresi,
             MinimumKonaklamaTemizlik = e.MinimumKonaklamaTemizlik,
+            KomisyonOrani = e.KomisyonOrani,
             
             Yayinda = e.Yayinda,
             OtoparkSayisi = e.OtoparkSayisi,
@@ -110,7 +111,8 @@ public class EmlakService
         var ozellikler = await ValidateAsync(request);
 
         var featuredIds = request.OneCikanOzellikIds.ToHashSet();
-
+        if (request.KomisyonOrani < 0 || request.KomisyonOrani > 100)
+            throw new ArgumentException("Komisyon oranı 0 ile 100 arasında olmalıdır.");
         var emlak = new Emlak
         {
             EmlakSahibiId = request.EmlakSahibiId,
@@ -139,6 +141,8 @@ public class EmlakService
             MinimumKonaklamaSuresi = request.MinimumKonaklamaSuresi,
             MinimumKonaklamaTemizlik = request.MinimumKonaklamaTemizlik,
             
+            KomisyonOrani = request.KomisyonOrani,
+            
             Yayinda = request.Yayinda,
             OtoparkSayisi = request.OtoparkSayisi,
             BelgeNo = string.IsNullOrWhiteSpace(request.BelgeNo)
@@ -162,6 +166,8 @@ public class EmlakService
 
         if (emlak == null)
             return false;
+        if (request.KomisyonOrani < 0 || request.KomisyonOrani > 100)
+            throw new ArgumentException("Komisyon oranı 0 ile 100 arasında olmalıdır.");
 
         var ozellikler = await ValidateAsync(request);
         var featuredIds = request.OneCikanOzellikIds.ToHashSet();
@@ -179,6 +185,8 @@ public class EmlakService
         emlak.Latitude = request.Latitude;
         emlak.Longitude = request.Longitude;
         
+        emlak.KomisyonOrani = request.KomisyonOrani;
+        
         emlak.GirisSaati = request.GirisSaati;
         emlak.CikisSaati = request.CikisSaati;
         emlak.HasarDepozitosu = request.HasarDepozitosu;
@@ -191,6 +199,7 @@ public class EmlakService
         emlak.BelgeNo = string.IsNullOrWhiteSpace(request.BelgeNo)
             ? null
             : request.BelgeNo.Trim();
+        emlak.KomisyonOrani = request.KomisyonOrani;
         emlak.UpdatedAt = DateTime.UtcNow;
         
 

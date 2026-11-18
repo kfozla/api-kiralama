@@ -263,6 +263,10 @@ namespace api_kiralama.Migrations
                     b.Property<int>("Kapasite")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("KomisyonOrani")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<double?>("Latitude")
                         .HasColumnType("double");
 
@@ -564,6 +568,10 @@ namespace api_kiralama.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<decimal>("OnOdemeOrani")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<string>("Telefon")
                         .HasColumnType("longtext");
 
@@ -655,6 +663,10 @@ namespace api_kiralama.Migrations
                     b.Property<int>("KisiSayisi")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("KomisyonTutari")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("MusteriAd")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -662,6 +674,10 @@ namespace api_kiralama.Migrations
                     b.Property<string>("MusteriSoyad")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<decimal>("OnOdemeTutari")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Telefon")
                         .IsRequired()

@@ -23,6 +23,9 @@ public class Rezervasyon
 
     // Girişte nakit alınacak, toplam fiyata dahil değil
     public decimal HasarDepozitosu { get; set; } = 0;
+    public decimal OnOdemeTutari { get; set; }
+
+    public decimal KomisyonTutari { get; set; }
 
     public RezervasyonDurumu Durum { get; set; }
         = RezervasyonDurumu.Beklemede;

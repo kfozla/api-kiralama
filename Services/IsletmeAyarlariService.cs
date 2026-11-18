@@ -43,6 +43,7 @@ public class IsletmeAyarlariService
             TursabBelgeNo = item.TursabBelgeNo,
             TursabBelgesiVar =
                 !string.IsNullOrWhiteSpace(item.TursabBelgeUrl),
+            OnOdemeOrani = item.OnOdemeOrani,
             UpdatedAt = item.UpdatedAt
         };
     }
@@ -76,7 +77,7 @@ public class IsletmeAyarlariService
         item.TursabBelgeNo = request.TursabUyeligiVar
             ? request.TursabBelgeNo?.Trim()
             : null;
-
+        item.OnOdemeOrani = request.OnOdemeOrani;
         // Üyelik kapatıldığında belgeyi kendiliğinden silmiyoruz.
         // Silme işlemi ayrı DELETE endpointiyle yapılır.
         item.UpdatedAt = DateTime.UtcNow;

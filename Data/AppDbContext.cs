@@ -399,6 +399,22 @@ public class AppDbContext:DbContext
                 .HasForeignKey(x => x.EmlakId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+        
+        modelBuilder.Entity<IsletmeAyarlari>()
+            .Property(x => x.OnOdemeOrani)
+            .HasPrecision(5, 2);
+
+        modelBuilder.Entity<Emlak>()
+            .Property(x => x.KomisyonOrani)
+            .HasPrecision(5, 2);
+
+        modelBuilder.Entity<Rezervasyon>()
+            .Property(x => x.OnOdemeTutari)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Rezervasyon>()
+            .Property(x => x.KomisyonTutari)
+            .HasPrecision(18, 2);
 
 
     }

@@ -186,68 +186,122 @@ public class RezervasyonService
         return geceSayisi;
     }
 
-    public async Task<Rezervasyon> AddAsync(RezervasyonRequest request)
+    
+public async Task<Rezervasyon> AddAsync(RezervasyonRequest request)
+{
+    ValidateRequest(request);
+
+    await using var transaction = await _context.Database
+        .BeginTransactionAsync(IsolationLevel.Serializable);
+
+    await _takvimLock.LockAsync(request.EmlakId);
+
+    var emlak = await _context.Emlaklar
+        .FirstOrDefaultAsync(e =>
+            e.Id == request.EmlakId && !e.IsDeleted);
+
+    if (emlak == null)
+        throw new ArgumentException("Emlak bulunamadı.");
+
+    int geceSayisi = ValidateMinimumNights(
+        emlak,
+        request.GirisTarihi,
+        request.CikisTarihi);
+
+    if (request.KisiSayisi > emlak.Kapasite)
+        throw new ArgumentException(
+            "Kişi sayısı emlak kapasitesini aşıyor.");
+
+    bool conflict = await _repository.HasConflictAsync(
+        request.EmlakId,
+        request.GirisTarihi,
+        request.CikisTarihi);
+
+    if (conflict)
+        throw new InvalidOperationException(
+            "Bu tarih aralığında villa müsait değil.");
+
+    decimal konaklamaTutari = await CalculatePriceAsync(
+        request.EmlakId,
+        request.GirisTarihi,
+        request.CikisTarihi);
+
+    decimal temizlikUcreti =
+        CalculateCleaningFee(emlak, geceSayisi);
+
+    // -----------------------------------------
+    // YENİ: İşletme ön ödeme oranını al
+    // -----------------------------------------
+
+    // İşletme ayarlarının tek kayıt olduğu varsayılıyor.
+    // Mevcut ayarlar servisinde farklı bir erişim
+    // yöntemin varsa bunu onunla değiştirebiliriz.
+    var isletmeAyarlari = await _context.IsletmeAyarlari
+        .AsNoTracking()
+        .FirstOrDefaultAsync();
+
+    if (isletmeAyarlari == null)
+        throw new InvalidOperationException(
+            "İşletme ayarları bulunamadı.");
+
+    decimal onOdemeOrani = isletmeAyarlari.OnOdemeOrani;
+    decimal komisyonOrani = emlak.KomisyonOrani;
+
+    if (onOdemeOrani < 0 || onOdemeOrani > 100)
+        throw new InvalidOperationException(
+            "İşletme ön ödeme oranı geçersiz.");
+
+    if (komisyonOrani < 0 || komisyonOrani > 100)
+        throw new InvalidOperationException(
+            "Emlak komisyon oranı geçersiz.");
+
+    // -----------------------------------------
+    // YENİ: Ön ödeme ve komisyon hesapla
+    // -----------------------------------------
+
+    decimal onOdemeTutari = Math.Round(
+        konaklamaTutari * onOdemeOrani / 100m,
+        2,
+        MidpointRounding.AwayFromZero);
+
+    decimal komisyonTutari = Math.Round(
+        konaklamaTutari * komisyonOrani / 100m,
+        2,
+        MidpointRounding.AwayFromZero);
+
+    // -----------------------------------------
+    // Rezervasyon oluştur
+    // -----------------------------------------
+
+    var rezervasyon = new Rezervasyon
     {
-        ValidateRequest(request);
+        EmlakId = request.EmlakId,
+        MusteriAd = request.MusteriAd.Trim(),
+        MusteriSoyad = request.MusteriSoyad.Trim(),
+        Telefon = request.Telefon.Trim(),
+        Email = request.Email,
+        GirisTarihi = request.GirisTarihi,
+        CikisTarihi = request.CikisTarihi,
+        KisiSayisi = request.KisiSayisi,
 
-        await using var transaction = await _context.Database
-            .BeginTransactionAsync(IsolationLevel.Serializable);
+        ToplamFiyat = konaklamaTutari,
+        TemizlikUcreti = temizlikUcreti,
+        HasarDepozitosu = emlak.HasarDepozitosu,
 
-        await _takvimLock.LockAsync(request.EmlakId);
+        // YENİ
+        OnOdemeTutari = onOdemeTutari,
+        KomisyonTutari = komisyonTutari,
 
-        var emlak = await _context.Emlaklar
-            .FirstOrDefaultAsync(e =>
-                e.Id == request.EmlakId && !e.IsDeleted);
+        Durum = RezervasyonDurumu.Beklemede,
+        CreatedAt = DateTime.UtcNow
+    };
 
-        if (emlak == null)
-            throw new ArgumentException("Emlak bulunamadı.");
+    await _repository.AddAsync(rezervasyon);
+    await transaction.CommitAsync();
 
-        int geceSayisi = ValidateMinimumNights(
-            emlak, request.GirisTarihi, request.CikisTarihi);
+    return rezervasyon;
+}
 
-        if (request.KisiSayisi > emlak.Kapasite)
-            throw new ArgumentException(
-                "Kişi sayısı emlak kapasitesini aşıyor.");
-
-        bool conflict = await _repository.HasConflictAsync(
-            request.EmlakId,
-            request.GirisTarihi,
-            request.CikisTarihi);
-
-        if (conflict)
-            throw new InvalidOperationException(
-                "Bu tarih aralığında villa müsait değil.");
-
-        decimal konaklamaTutari = await CalculatePriceAsync(
-            request.EmlakId,
-            request.GirisTarihi,
-            request.CikisTarihi);
-
-        decimal temizlikUcreti = CalculateCleaningFee(emlak, geceSayisi);
-        
-
-        var rezervasyon = new Rezervasyon
-        {
-            EmlakId = request.EmlakId,
-            MusteriAd = request.MusteriAd.Trim(),
-            MusteriSoyad = request.MusteriSoyad.Trim(),
-            Telefon = request.Telefon.Trim(),
-            Email = request.Email,
-            GirisTarihi = request.GirisTarihi,
-            CikisTarihi = request.CikisTarihi,
-            KisiSayisi = request.KisiSayisi,
-            ToplamFiyat = konaklamaTutari,
-            TemizlikUcreti = temizlikUcreti,
-            HasarDepozitosu = emlak.HasarDepozitosu,
-            Durum = RezervasyonDurumu.Beklemede,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        await _repository.AddAsync(rezervasyon);
-        await transaction.CommitAsync();
-
-        return rezervasyon;
-    }
     
    
 public async Task<bool> UpdateAsync(

@@ -14,6 +14,7 @@ public class IsletmeAyarlariResponse
     public bool TursabUyeligiVar { get; set; }
     public string? TursabBelgeNo { get; set; }
     public bool TursabBelgesiVar { get; set; }
+    public decimal OnOdemeOrani { get; set; }
 
     public DateTime UpdatedAt { get; set; }
 }

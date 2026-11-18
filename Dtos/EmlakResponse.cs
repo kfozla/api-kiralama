@@ -36,6 +36,7 @@ public class EmlakResponse
     public bool Yayinda { get; set; } 
     public int OtoparkSayisi { get; set; } 
     public string? BelgeNo { get; set; }
+    public decimal KomisyonOrani { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
